@@ -1,4 +1,5 @@
 import BN from "bn.js";
+import { AllowanceStateResponse, BalanceStateResponse } from "../state-manager";
 
 export interface IAllowance {
   /**
@@ -21,6 +22,13 @@ export interface IAllowance {
   allowance(_owner: string, _spender: string): Promise<BN>;
 }
 
+export interface IStatefulAllowance {
+  getAllowanceState(
+    requiredAmount: number,
+    spender: string
+  ): Promise<AllowanceStateResponse>;
+}
+
 export interface IBalance {
   /**
    * Payable: false
@@ -30,6 +38,10 @@ export interface IBalance {
    * @param _owner Type: address, Indexed: false
    */
   balanceOf(_owner: string): Promise<BN>;
+}
+
+export interface IStatefulBalance {
+  getBalanceState(requiredAmount: number): Promise<BalanceStateResponse>;
 }
 
 export class SignedContract {

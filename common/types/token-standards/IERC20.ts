@@ -1,12 +1,14 @@
 import { NetworkResponse } from "..";
 import BN from "bn.js";
 import { ContractHelpers } from "../../src/internal/contract-helpers";
-import { IAllowance, IBalance, SignedContract } from ".";
 import {
-  AllowanceStateResponse,
-  BalanceStateResponse,
-  TokenStateResponse,
-} from "../state-manager";
+  IAllowance,
+  IBalance,
+  IStatefulAllowance,
+  IStatefulBalance,
+  SignedContract,
+} from ".";
+import { TokenStateResponse } from "../state-manager";
 
 export interface IERC20 extends IAllowance, IBalance {
   /**
@@ -58,7 +60,7 @@ export interface IERC20 extends IAllowance, IBalance {
   transfer(_to: string, _value: number): Promise<void>;
 }
 
-export interface IStatefulERC20 {
+export interface IStatefulERC20 extends IStatefulBalance, IStatefulAllowance {
   /**
    * Payable: false
    * Constant: true
@@ -136,13 +138,6 @@ export interface IStatefulERC20 {
    * @param _spender Type: address, Indexed: false
    */
   allowance(_owner: string, _spender: string): Promise<NetworkResponse<BN>>;
-
-  getBalanceState(requiredAmount: number): Promise<BalanceStateResponse>;
-
-  getAllowanceState(
-    requiredAmount: number,
-    spender: string
-  ): Promise<AllowanceStateResponse>;
 
   getTokenState(
     requiredAmount: number,

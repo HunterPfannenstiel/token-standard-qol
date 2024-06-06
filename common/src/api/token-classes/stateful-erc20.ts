@@ -31,12 +31,12 @@ export class StatefulERC20 implements IStatefulERC20 {
   }
 
   public async cTotalSupply(): Promise<NetworkResponse<BN>> {
-    return NetworkRequestHandler.send(async () => this._erc20.totalSupply());
+    return NetworkRequestHandler.send(async () => this._erc20.cTotalSupply());
   }
 
   public async cBalanceOf(_owner: string): Promise<NetworkResponse<BN>> {
     return NetworkRequestHandler.send(async () =>
-      this._erc20.balanceOf(_owner)
+      this._erc20.cBalanceOf(_owner)
     );
   }
 
@@ -45,7 +45,7 @@ export class StatefulERC20 implements IStatefulERC20 {
     _spender: string
   ): Promise<NetworkResponse<BN>> {
     return NetworkRequestHandler.send(async () =>
-      this._erc20.allowance(_owner, _spender)
+      this._erc20.cAllowance(_owner, _spender)
     );
   }
 

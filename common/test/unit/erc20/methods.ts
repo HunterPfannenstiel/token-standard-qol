@@ -1,16 +1,14 @@
-import { ContractHelpers } from "../../src/internal/contract-helpers";
-import { ProviderContractConstructor } from "../utils/types";
+import { ContractHelpers } from "../../../src/internal/contract-helpers";
+import { ProviderContractConstructor } from "../../utils/types";
 import {
-  GANACHE_PROVIDER_URL,
-  GANACHE_CHAIN_ID,
+  MOCK_ADDRESS,
   TEST_ERC20_1,
   TEST_ERC20_2,
-} from "../utils/constants";
-import * as tERC20ABI from "../utils/ABI/tERC20.json";
-import { ERC20TestContractData, ITestableERC20 } from "../utils/types";
-import { amountTests } from "./amount-tests";
-
-const ALLOWANCE_ADDRESS = "0x648536a2961aEF3ec412E3e0E25427074f70f7Ff";
+  getGanacheContract,
+} from "../../utils/constants";
+import * as tERC20ABI from "../../utils/ABI/tERC20.json";
+import { ERC20TestContractData, ITestableERC20 } from "../../utils/types";
+import { amountTests } from "../../utils/test-functions/amounts";
 
 export const erc20Tests = (
   contractConstructor: ProviderContractConstructor<ITestableERC20>
@@ -19,11 +17,10 @@ export const erc20Tests = (
     let erc20: ITestableERC20;
     let signerAddress: string;
     beforeAll(async () => {
-      const contractInfo = await contractConstructor(
+      const contractInfo = await getGanacheContract(
+        contractConstructor,
         contractData.address,
-        GANACHE_CHAIN_ID,
-        tERC20ABI.abi,
-        GANACHE_PROVIDER_URL
+        tERC20ABI.abi
       );
       erc20 = contractInfo.contract;
       signerAddress = contractInfo.signerAddress;
@@ -56,10 +53,10 @@ export const erc20Tests = (
       describe("approve method", () => {
         const approveTest = (approveAmount: number) =>
           it(`should approve ${approveAmount} tokens`, async () => {
-            await erc20.approve(ALLOWANCE_ADDRESS, approveAmount);
+            await erc20.approve(MOCK_ADDRESS, approveAmount);
             const allowance = await erc20.allowance(
               signerAddress,
-              ALLOWANCE_ADDRESS
+              MOCK_ADDRESS
             );
             const expectedAllowance = ContractHelpers.tokenToDecimalAmount(
               approveAmount,
@@ -123,7 +120,7 @@ export const erc20Tests = (
         it(`should transfer ${transferAmount} tokens`, async () => {
           const initialBalance = await erc20.balanceOf(signerAddress);
           await erc20.mint(transferAmount);
-          await erc20.transfer(ALLOWANCE_ADDRESS, transferAmount);
+          await erc20.transfer(MOCK_ADDRESS, transferAmount);
           const newBalance = await erc20.balanceOf(signerAddress);
           expect(newBalance.toString()).toBe(initialBalance.toString());
         });
@@ -137,11 +134,7 @@ export const erc20Tests = (
           const initialBalance = await erc20.balanceOf(signerAddress);
           await erc20.mint(transferAmount);
           await erc20.approve(signerAddress, transferAmount);
-          await erc20.transferFrom(
-            signerAddress,
-            ALLOWANCE_ADDRESS,
-            transferAmount
-          );
+          await erc20.transferFrom(signerAddress, MOCK_ADDRESS, transferAmount);
           const newBalance = await erc20.balanceOf(signerAddress);
           expect(newBalance.toString()).toBe(initialBalance.toString());
         });

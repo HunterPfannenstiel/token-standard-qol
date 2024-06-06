@@ -1,6 +1,6 @@
 import { IERC20 } from "../../types/token-standards/IERC20";
 
-export interface ITestableERC20 extends IERC20 {
+export interface IMintable {
   /**
    * Payable: false
    * Constant: false
@@ -17,6 +17,8 @@ export interface ITestableERC20 extends IERC20 {
    */
   burnAll(): Promise<void>;
 }
+
+export interface ITestableERC20 extends IMintable, IERC20 {}
 
 export type ERC20Metadata = {
   name: string;
