@@ -9,32 +9,104 @@ import { IMintable } from "../types";
 export type StateTestValues = {
   balance: number;
   required: number;
-  sufficient: boolean;
+  expectedState: string;
 };
 
-export const amountStateTests = (testFn: (values: StateTestValues) => void) => {
+export type TokenStateTestValues = StateTestValues & { allowance: number };
+
+export type StateNames = { sufficient: string; insufficient: string };
+
+export const amountStateTests = (
+  testFn: (values: StateTestValues) => void,
+  stateNames: StateNames
+) => {
   const values: StateTestValues[] = [
-    { balance: 0, required: 1000, sufficient: false },
-    { balance: 1000, required: 999, sufficient: true },
-    { balance: 999, required: 1000, sufficient: false },
-    { balance: 1000, required: 0, sufficient: true },
-    { balance: 0, required: 0, sufficient: true },
-    { balance: 1000, required: 1000, sufficient: true },
+    { balance: 0, required: 1000, expectedState: stateNames.insufficient },
+    { balance: 1000, required: 999, expectedState: stateNames.sufficient },
+    { balance: 999, required: 1000, expectedState: stateNames.insufficient },
+    { balance: 1000, required: 0, expectedState: stateNames.sufficient },
+    { balance: 0, required: 0, expectedState: stateNames.sufficient },
+    { balance: 1000, required: 1000, expectedState: stateNames.sufficient },
   ];
   values.forEach((v) => testFn(v));
 };
 
-const allowanceSufficientMap = {
-  true: "sufficient-allowance",
-  false: "insufficient-allowance",
+export const tokenStateTests = (
+  testFn: (values: TokenStateTestValues) => void,
+  stateNames: {
+    insufficientBalance: string;
+    insufficientAllowance: string;
+    sufficientTokens: string;
+  }
+) => {
+  const values: TokenStateTestValues[] = [
+    {
+      balance: 0,
+      allowance: 0,
+      required: 1000,
+      expectedState: stateNames.insufficientBalance,
+    },
+    {
+      balance: 1000,
+      allowance: 0,
+      required: 999,
+      expectedState: stateNames.insufficientAllowance,
+    },
+    {
+      balance: 999,
+      allowance: 998,
+      required: 999,
+      expectedState: stateNames.insufficientAllowance,
+    },
+    {
+      balance: 0,
+      allowance: 1000,
+      required: 999,
+      expectedState: stateNames.insufficientBalance,
+    },
+
+    {
+      balance: 999,
+      allowance: 999,
+      required: 1000,
+      expectedState: stateNames.insufficientBalance,
+    },
+    {
+      balance: 1000,
+      allowance: 0,
+      required: 0,
+      expectedState: stateNames.sufficientTokens,
+    },
+    {
+      balance: 0,
+      allowance: 1000,
+      required: 0,
+      expectedState: stateNames.sufficientTokens,
+    },
+
+    {
+      balance: 0,
+      allowance: 0,
+      required: 0,
+      expectedState: stateNames.sufficientTokens,
+    },
+    {
+      balance: 1000,
+      allowance: 1000,
+      required: 1000,
+      expectedState: stateNames.sufficientTokens,
+    },
+  ];
+  values.forEach((v) => testFn(v));
 };
 
 export const allowanceStateTests = (
   allowanceSetter: IAllowance,
-  allowanceState: IStatefulAllowance
+  allowanceState: IStatefulAllowance,
+  stateNames: StateNames
 ) => {
   const testFn = (values: StateTestValues) => {
-    it(`should be ${values.sufficient} that the state is sufficient`, async () => {
+    it(`should return the ${values.expectedState} state`, async () => {
       await allowanceSetter.approve(MOCK_ADDRESS, values.balance);
       const state = await allowanceState.getAllowanceState(
         values.required,
@@ -43,33 +115,27 @@ export const allowanceStateTests = (
       if (state.isError) {
         throw new Error(state.data);
       }
-      const expectedState = allowanceSufficientMap[`${values.sufficient}`];
-      expect(state.data.state).toBe(expectedState);
+      expect(state.data.state).toBe(values.expectedState);
     });
   };
-  amountStateTests(testFn);
-};
-
-const balanceSufficientMap = {
-  true: "sufficient-balance",
-  false: "insufficient-balance",
+  amountStateTests(testFn, stateNames);
 };
 
 export const balanceStateTests = (
   balanceSetter: IMintable,
-  balanceState: IStatefulBalance
+  balanceState: IStatefulBalance,
+  stateNames: StateNames
 ) => {
   const testFn = (values: StateTestValues) => {
-    it(`should be ${values.sufficient} that the state is sufficient`, async () => {
+    it(`should return the ${values.expectedState} state`, async () => {
       await balanceSetter.burnAll();
       await balanceSetter.mint(values.balance);
       const state = await balanceState.getBalanceState(values.required);
       if (state.isError) {
         throw new Error(state.data);
       }
-      const expectedState = balanceSufficientMap[`${values.sufficient}`];
-      expect(state.data.state).toBe(expectedState);
+      expect(state.data.state).toBe(values.expectedState);
     });
   };
-  amountStateTests(testFn);
+  amountStateTests(testFn, stateNames);
 };

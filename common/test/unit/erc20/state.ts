@@ -1,5 +1,7 @@
 import { ITestableERC20, ProviderContractConstructor } from "../../utils/types";
 import {
+  GANACHE_CHAIN_ID,
+  GANACHE_PROVIDER_URL,
   MOCK_ADDRESS,
   TEST_ERC20_1,
   getGanacheContract,
@@ -9,9 +11,9 @@ import { ERC20, IStatefulERC20 } from "../../../types/token-standards/IERC20";
 import { StatefulERC20 } from "../../../src/api/token-classes/stateful-erc20";
 import {
   StateTestValues,
-  allowanceStateTests,
+  TokenStateTestValues,
   amountStateTests,
-  balanceStateTests,
+  tokenStateTests,
 } from "../../utils/test-functions/state";
 
 export const erc20StateTests = (
@@ -22,6 +24,7 @@ export const erc20StateTests = (
 ) => {
   let testERC20: ITestableERC20;
   let statefulERC20: IStatefulERC20;
+  let errorERC20: IStatefulERC20;
   let signerAddress: string;
   beforeAll(async () => {
     const contractData = await getGanacheContract(
@@ -30,8 +33,17 @@ export const erc20StateTests = (
       tERC20ABI.abi
     );
 
+    const errorConctractData = await contractsConstructor(
+      MOCK_ADDRESS,
+      GANACHE_CHAIN_ID,
+      tERC20ABI.abi,
+      GANACHE_PROVIDER_URL
+    );
+
     testERC20 = contractData.contract.test;
     signerAddress = contractData.signerAddress;
+
+    errorERC20 = new StatefulERC20(errorConctractData.contract.erc20);
 
     statefulERC20 = new StatefulERC20(contractData.contract.erc20);
   });
@@ -39,26 +51,73 @@ export const erc20StateTests = (
   describe("State methods", () => {
     describe("Balance state", () => {
       //Passing in parameters initialized by beforeAll will be undefined
-      const balanceSufficientMap = {
-        true: "sufficient-balance",
-        false: "insufficient-balance",
-      };
       const testFn = (values: StateTestValues) => {
-        it(`should be ${values.sufficient} that the state is sufficient`, async () => {
+        it(`should return the ${values.expectedState} state`, async () => {
           await testERC20.burnAll();
           await testERC20.mint(values.balance);
           const state = await statefulERC20.getBalanceState(values.required);
           if (state.isError) {
             throw new Error(state.data);
           }
-          const expectedState = balanceSufficientMap[`${values.sufficient}`];
-          expect(state.data.state).toBe(expectedState);
+          expect(state.data.state).toBe(values.expectedState);
         });
       };
-      amountStateTests(testFn);
+      amountStateTests(testFn, {
+        sufficient: "sufficient-balance",
+        insufficient: "insufficient-balance",
+      });
     });
+
     describe("Allowance state", () => {
-      allowanceStateTests(testERC20, statefulERC20);
+      const testFn = (values: StateTestValues) => {
+        it(`should return the ${values.expectedState} state`, async () => {
+          await testERC20.approve(MOCK_ADDRESS, values.balance);
+          const state = await statefulERC20.getAllowanceState(
+            values.required,
+            MOCK_ADDRESS
+          );
+          if (state.isError) {
+            throw new Error(state.data);
+          }
+          expect(state.data.state).toBe(values.expectedState);
+        });
+      };
+      amountStateTests(testFn, {
+        sufficient: "sufficient-allowance",
+        insufficient: "insufficient-allowance",
+      });
+    });
+    describe("Token state", () => {
+      const testFn = (values: TokenStateTestValues) => {
+        it(`should return the ${values.expectedState} state`, async () => {
+          await testERC20.burnAll();
+          await testERC20.mint(values.balance);
+          await testERC20.approve(MOCK_ADDRESS, values.allowance);
+          const state = await statefulERC20.getTokenState(
+            values.required,
+            MOCK_ADDRESS
+          );
+          if (state.isError) {
+            throw new Error(state.data);
+          }
+          expect(state.data.state).toBe(values.expectedState);
+        });
+      };
+      tokenStateTests(testFn, {
+        insufficientAllowance: "insufficient-allowance",
+        insufficientBalance: "insufficient-balance",
+        sufficientTokens: "sufficient",
+      });
+    });
+  });
+
+  describe("ERC20 methods", () => {
+    describe("allowance", () => {
+      it("should give an error", async () => {
+        const res = await errorERC20.allowance(signerAddress, MOCK_ADDRESS);
+        console.log(res);
+        expect(res.isError).toBe(true);
+      });
     });
   });
 };

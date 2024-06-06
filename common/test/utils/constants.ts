@@ -2,7 +2,7 @@ import { ERC20TestContractData, ProviderContractConstructor } from "./types";
 
 export const GANACHE_PROVIDER_URL = "HTTP://127.0.0.1:7545";
 export const GANACHE_CHAIN_ID = 5777;
-export const MOCK_ADDRESS = "0x648536a2961aEF3ec412E3e0E25427074f70f7Ff";
+export const MOCK_ADDRESS = "0x21416EFc90C7265E7550c7aE4bD63B15623908B6";
 
 export const TEST_ERC20_1: ERC20TestContractData = {
   address: "0x648536a2961aEF3ec412E3e0E25427074f70f7Ff",
