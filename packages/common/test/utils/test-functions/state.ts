@@ -113,7 +113,7 @@ export const allowanceStateTests = (
         MOCK_ADDRESS
       );
       if (state.isError) {
-        throw new Error(state.data);
+        throw new Error(state.data.message);
       }
       expect(state.data.state).toBe(values.expectedState);
     });
@@ -132,7 +132,7 @@ export const balanceStateTests = (
       await balanceSetter.mint(values.balance);
       const state = await balanceState.getBalanceState(values.required);
       if (state.isError) {
-        throw new Error(state.data);
+        throw new Error(state.data.message);
       }
       expect(state.data.state).toBe(values.expectedState);
     });

@@ -1,6 +1,6 @@
 import BN from "bn.js";
 
-import { ERC20 } from "../../../../common/types/token-standards/IERC20";
+import { ERC20 } from "../../../common/types/token-standards/IERC20";
 import { IERC20ContractContext } from "../../types/token-standards/web3IERC20";
 // import { Web3Error } from "web3";
 

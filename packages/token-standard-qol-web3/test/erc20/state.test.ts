@@ -1,4 +1,4 @@
-import { erc20StateTests } from "../../../../common/test/unit/erc20/state";
+import { erc20StateTests } from "../../../common/test/unit/erc20/state";
 import { getSignedERC20Contracts } from "../utils";
 
 describe("ERC20 Stateful Tests", () => {

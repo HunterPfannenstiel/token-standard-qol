@@ -1,6 +1,6 @@
 import { Contract, ContractAbi } from "web3";
-import { ABIDelegate } from "../../../../common/types";
-import { IContractConstructor } from "../../../../common/types/contract-constructor";
+import { ABIDelegate } from "../../../common/types";
+import { IContractConstructor } from "../../../common/types/contract-constructor";
 
 export class Web3ContractConstructor
   implements IContractConstructor<Contract<any>>
