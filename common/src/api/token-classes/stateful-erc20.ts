@@ -51,7 +51,7 @@ export class StatefulERC20 implements IStatefulERC20 {
   }
 
   name(): Promise<NetworkResponse<string>> {
-    return this._reqestHandler.send(this._erc20.name);
+    return this._reqestHandler.send(() => this._erc20.name());
   }
 
   approve(_spender: string, _value: number): Promise<NetworkResponse<void>> {
@@ -61,7 +61,7 @@ export class StatefulERC20 implements IStatefulERC20 {
   }
 
   totalSupply(): Promise<NetworkResponse<BN>> {
-    return this._reqestHandler.send(this._erc20.totalSupply);
+    return this._reqestHandler.send(() => this._erc20.totalSupply());
   }
 
   transferFrom(
@@ -75,7 +75,7 @@ export class StatefulERC20 implements IStatefulERC20 {
   }
 
   decimals(): Promise<NetworkResponse<number>> {
-    return this._reqestHandler.send(this._erc20.decimals);
+    return this._reqestHandler.send(() => this._erc20.decimals());
   }
 
   balanceOf(_owner: string): Promise<NetworkResponse<BN>> {
@@ -85,7 +85,7 @@ export class StatefulERC20 implements IStatefulERC20 {
   }
 
   symbol(): Promise<NetworkResponse<string>> {
-    return this._reqestHandler.send(this._erc20.symbol);
+    return this._reqestHandler.send(() => this._erc20.symbol());
   }
 
   transfer(_to: string, _value: number): Promise<NetworkResponse<void>> {

@@ -115,29 +115,40 @@ export const erc20StateTests = (
   describe("ERC20 methods", () => {
     describe("allowance", () => {
       expectError(() => errorERC20.allowance(signerAddress, MOCK_ADDRESS));
+      expectNoError(() => statefulERC20.allowance(signerAddress, MOCK_ADDRESS));
     });
     describe("approve", () => {
-      expectError(() => errorERC20.allowance(signerAddress, MOCK_ADDRESS));
+      expectError(() => errorERC20.approve(signerAddress, 100));
+      expectNoError(async () => {
+        const res = await statefulERC20.approve(signerAddress, 100);
+        await statefulERC20.approve(signerAddress, 0);
+        return res;
+      });
     });
 
     describe("balanceOf", () => {
       expectError(() => errorERC20.balanceOf(signerAddress));
+      expectNoError(() => statefulERC20.balanceOf(signerAddress));
     });
 
     describe("decimals", () => {
       expectError(() => errorERC20.decimals());
+      expectNoError(() => statefulERC20.decimals());
     });
 
     describe("name", () => {
       expectError(() => errorERC20.name());
+      expectNoError(() => statefulERC20.name());
     });
 
     describe("symbol", () => {
       expectError(() => errorERC20.symbol());
+      expectNoError(() => statefulERC20.symbol());
     });
 
     describe("totalSupply", () => {
       expectError(() => errorERC20.totalSupply());
+      expectNoError(() => statefulERC20.totalSupply());
     });
 
     describe("transfer", () => {
@@ -147,6 +158,13 @@ export const erc20StateTests = (
       expectError(async () => {
         await testERC20.burnAll();
         const res = await statefulERC20.transfer(MOCK_ADDRESS, 100);
+        return res;
+      });
+
+      expectNoError(async () => {
+        await testERC20.mint(100);
+        const res = await statefulERC20.transfer(MOCK_ADDRESS, 100);
+        await testERC20.burnAll();
         return res;
       });
     });
@@ -179,6 +197,18 @@ export const erc20StateTests = (
         );
         return res;
       }, true);
+
+      expectNoError(async () => {
+        await testERC20.mint(100);
+        await statefulERC20.approve(signerAddress, 100);
+        const res = await statefulERC20.transferFrom(
+          signerAddress,
+          MOCK_ADDRESS,
+          100
+        );
+        await testERC20.burnAll();
+        return res;
+      });
     });
 
     describe("getAllowanceState", () => {
@@ -201,6 +231,14 @@ const expectError = (
 ) =>
   it("should give an error", async () => {
     const res = await action();
-    expect(res.isError).toBe(true);
     if (logError) console.log(res.data);
+    expect(res.isError).toBe(true);
   });
+
+const expectNoError = (action: () => Promise<NetworkResponse<any>>) => {
+  it("should not give an error", async () => {
+    const res = await action();
+    if (res.isError) console.log(res.data);
+    expect(res.isError).toBe(false);
+  });
+};
