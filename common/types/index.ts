@@ -1,8 +1,8 @@
 //TODO: Change this to a better type
 export type ABIDelegate = (contractAddress: string) => Promise<any>;
 
-export type NetworkResponse<U, E = string> =
-  | { isError: true; data: E }
+export type NetworkResponse<U> =
+  | { isError: true; data: { error: any; message: string } }
   | { isError: false; data: U };
 
 export type StateDataMap = Record<string, any>;

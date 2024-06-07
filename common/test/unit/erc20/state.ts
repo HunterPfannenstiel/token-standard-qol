@@ -15,6 +15,7 @@ import {
   amountStateTests,
   tokenStateTests,
 } from "../../utils/test-functions/state";
+import { NetworkResponse } from "../../../types";
 
 export const erc20StateTests = (
   contractsConstructor: ProviderContractConstructor<{
@@ -57,7 +58,7 @@ export const erc20StateTests = (
           await testERC20.mint(values.balance);
           const state = await statefulERC20.getBalanceState(values.required);
           if (state.isError) {
-            throw new Error(state.data);
+            throw new Error(state.data.message);
           }
           expect(state.data.state).toBe(values.expectedState);
         });
@@ -77,7 +78,7 @@ export const erc20StateTests = (
             MOCK_ADDRESS
           );
           if (state.isError) {
-            throw new Error(state.data);
+            throw new Error(state.data.message);
           }
           expect(state.data.state).toBe(values.expectedState);
         });
@@ -98,7 +99,7 @@ export const erc20StateTests = (
             MOCK_ADDRESS
           );
           if (state.isError) {
-            throw new Error(state.data);
+            throw new Error(state.data.message);
           }
           expect(state.data.state).toBe(values.expectedState);
         });
@@ -113,11 +114,93 @@ export const erc20StateTests = (
 
   describe("ERC20 methods", () => {
     describe("allowance", () => {
-      it("should give an error", async () => {
-        const res = await errorERC20.allowance(signerAddress, MOCK_ADDRESS);
-        console.log(res);
-        expect(res.isError).toBe(true);
+      expectError(() => errorERC20.allowance(signerAddress, MOCK_ADDRESS));
+    });
+    describe("approve", () => {
+      expectError(() => errorERC20.allowance(signerAddress, MOCK_ADDRESS));
+    });
+
+    describe("balanceOf", () => {
+      expectError(() => errorERC20.balanceOf(signerAddress));
+    });
+
+    describe("decimals", () => {
+      expectError(() => errorERC20.decimals());
+    });
+
+    describe("name", () => {
+      expectError(() => errorERC20.name());
+    });
+
+    describe("symbol", () => {
+      expectError(() => errorERC20.symbol());
+    });
+
+    describe("totalSupply", () => {
+      expectError(() => errorERC20.totalSupply());
+    });
+
+    describe("transfer", () => {
+      expectError(() => errorERC20.transfer(MOCK_ADDRESS, 100));
+
+      //Error within the smart contract function (invalid balance)
+      expectError(async () => {
+        await testERC20.burnAll();
+        const res = await statefulERC20.transfer(MOCK_ADDRESS, 100);
+        return res;
       });
+    });
+
+    describe("transferFrom", () => {
+      expectError(() =>
+        errorERC20.transferFrom(signerAddress, MOCK_ADDRESS, 100)
+      );
+
+      //Error within the smart contract function (invalid balance)
+      expectError(async () => {
+        await testERC20.burnAll();
+        await statefulERC20.approve(signerAddress, 100);
+        const res = await statefulERC20.transferFrom(
+          signerAddress,
+          MOCK_ADDRESS,
+          100
+        );
+        await statefulERC20.approve(signerAddress, 0);
+        return res;
+      }, true);
+
+      //Error within the smart contract function (invalid allowance)
+      expectError(async () => {
+        await testERC20.burnAll();
+        const res = await statefulERC20.transferFrom(
+          signerAddress,
+          MOCK_ADDRESS,
+          100
+        );
+        return res;
+      }, true);
+    });
+
+    describe("getAllowanceState", () => {
+      expectError(() => errorERC20.getAllowanceState(100, MOCK_ADDRESS));
+    });
+
+    describe("getBalanceState", () => {
+      expectError(() => errorERC20.getBalanceState(100));
+    });
+
+    describe("getTokenState", () => {
+      expectError(() => errorERC20.getTokenState(100, MOCK_ADDRESS));
     });
   });
 };
+
+const expectError = (
+  action: () => Promise<NetworkResponse<any>>,
+  logError = false
+) =>
+  it("should give an error", async () => {
+    const res = await action();
+    expect(res.isError).toBe(true);
+    if (logError) console.log(res.data);
+  });

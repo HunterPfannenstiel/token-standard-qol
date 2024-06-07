@@ -12,55 +12,56 @@ import {
   BalanceStateManager,
   StateManagerHelpers,
 } from "../../internal/state-managers";
+import { NetworkRequestErrorHandler } from "../../../types/internal/network-request-handler";
 
 export class StatefulERC20 implements IStatefulERC20 {
   private _balanceManager: BalanceStateManager;
   private _allowanceManager: AllowanceStateManager;
+  private _reqestHandler: NetworkRequestHandler;
   protected _erc20: ERC20;
 
-  constructor(erc20: ERC20) {
+  constructor(erc20: ERC20, errorHandler?: NetworkRequestErrorHandler) {
     this._erc20 = erc20;
     this._balanceManager = new BalanceStateManager(this._erc20);
     this._allowanceManager = new AllowanceStateManager(this._erc20);
+    this._reqestHandler = new NetworkRequestHandler(errorHandler);
   }
 
   protected async tokenToDecimalAmount(requiredAmount: number) {
-    return NetworkRequestHandler.send(async () => {
+    return this._reqestHandler.send(async () => {
       return this._erc20.tokenToDecimalAmount(requiredAmount);
     });
   }
 
   public async cTotalSupply(): Promise<NetworkResponse<BN>> {
-    return NetworkRequestHandler.send(async () => this._erc20.cTotalSupply());
+    return this._reqestHandler.send(async () => this._erc20.cTotalSupply());
   }
 
   public async cBalanceOf(_owner: string): Promise<NetworkResponse<BN>> {
-    return NetworkRequestHandler.send(async () =>
-      this._erc20.cBalanceOf(_owner)
-    );
+    return this._reqestHandler.send(async () => this._erc20.cBalanceOf(_owner));
   }
 
   public async cAllowance(
     _owner: string,
     _spender: string
   ): Promise<NetworkResponse<BN>> {
-    return NetworkRequestHandler.send(async () =>
+    return this._reqestHandler.send(async () =>
       this._erc20.cAllowance(_owner, _spender)
     );
   }
 
   name(): Promise<NetworkResponse<string>> {
-    return NetworkRequestHandler.send(this._erc20.name);
+    return this._reqestHandler.send(this._erc20.name);
   }
 
   approve(_spender: string, _value: number): Promise<NetworkResponse<void>> {
-    return NetworkRequestHandler.send(
+    return this._reqestHandler.send(
       this._erc20.approve.bind(this._erc20, _spender, _value)
     );
   }
 
   totalSupply(): Promise<NetworkResponse<BN>> {
-    return NetworkRequestHandler.send(this._erc20.totalSupply);
+    return this._reqestHandler.send(this._erc20.totalSupply);
   }
 
   transferFrom(
@@ -68,33 +69,33 @@ export class StatefulERC20 implements IStatefulERC20 {
     _to: string,
     _value: number
   ): Promise<NetworkResponse<void>> {
-    return NetworkRequestHandler.send(
+    return this._reqestHandler.send(
       this._erc20.transferFrom.bind(this._erc20, _from, _to, _value)
     );
   }
 
   decimals(): Promise<NetworkResponse<number>> {
-    return NetworkRequestHandler.send(this._erc20.decimals);
+    return this._reqestHandler.send(this._erc20.decimals);
   }
 
   balanceOf(_owner: string): Promise<NetworkResponse<BN>> {
-    return NetworkRequestHandler.send(
+    return this._reqestHandler.send(
       this._erc20.balanceOf.bind(this._erc20, _owner)
     );
   }
 
   symbol(): Promise<NetworkResponse<string>> {
-    return NetworkRequestHandler.send(this._erc20.symbol);
+    return this._reqestHandler.send(this._erc20.symbol);
   }
 
   transfer(_to: string, _value: number): Promise<NetworkResponse<void>> {
-    return NetworkRequestHandler.send(
+    return this._reqestHandler.send(
       this._erc20.transfer.bind(this._erc20, _to, _value)
     );
   }
 
   allowance(_owner: string, _spender: string): Promise<NetworkResponse<BN>> {
-    return NetworkRequestHandler.send(
+    return this._reqestHandler.send(
       this._erc20.allowance.bind(this._erc20, _owner, _spender)
     );
   }
@@ -105,7 +106,7 @@ export class StatefulERC20 implements IStatefulERC20 {
     if (conversionRequest.isError) return conversionRequest;
 
     const requiredBalance = conversionRequest.data;
-    return NetworkRequestHandler.send(async () => {
+    return this._reqestHandler.send(async () => {
       return this._balanceManager.getBalanceState(
         requiredBalance,
         this._erc20.getSignerAddress()
@@ -122,7 +123,7 @@ export class StatefulERC20 implements IStatefulERC20 {
     if (conversionRequest.isError) return conversionRequest;
 
     const requiredAllowance = conversionRequest.data;
-    return NetworkRequestHandler.send(async () => {
+    return this._reqestHandler.send(async () => {
       return this._allowanceManager.getAllowanceState(
         requiredAllowance,
         this._erc20.getSignerAddress(),
@@ -140,7 +141,7 @@ export class StatefulERC20 implements IStatefulERC20 {
     if (conversionRequest.isError) return conversionRequest;
 
     const requiredAmountBN = conversionRequest.data;
-    const balanceAllowanceStateRequest = await NetworkRequestHandler.send(
+    const balanceAllowanceStateRequest = await this._reqestHandler.send(
       async () =>
         StateManagerHelpers.balanceAllowanceState(
           this._allowanceManager,
