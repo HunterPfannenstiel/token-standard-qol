@@ -8,7 +8,7 @@ import {
   IStatefulBalance,
   SignedContract,
 } from ".";
-import { TokenStateResponse } from "../state-manager";
+import { TokenStateResponse } from "../internal/state-managers/token";
 
 export interface IERC20 extends IAllowance, IBalance {
   /**

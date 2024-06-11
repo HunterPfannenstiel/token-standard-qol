@@ -1,5 +1,6 @@
 import BN from "bn.js";
-import { AllowanceStateResponse, BalanceStateResponse } from "../state-manager";
+import { AllowanceStateResponse } from "../internal/state-managers/allowance";
+import { BalanceStateResponse } from "../internal/state-managers/balance";
 
 export interface IAllowance {
   /**
@@ -44,7 +45,12 @@ export interface IStatefulBalance {
   getBalanceState(requiredAmount: number): Promise<BalanceStateResponse>;
 }
 
-export class SignedContract {
+export interface ISignedContract {
+  getSignerAddress(): string;
+  setSignerAddress(address: string): void;
+}
+
+export class SignedContract implements ISignedContract {
   private _signerAddress: string;
   constructor(signerAddress: string) {
     this._signerAddress = signerAddress;

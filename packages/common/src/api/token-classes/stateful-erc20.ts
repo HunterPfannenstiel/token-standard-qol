@@ -1,9 +1,5 @@
 import { NetworkResponse } from "../../../types";
-import {
-  BalanceStateResponse,
-  AllowanceStateResponse,
-  TokenStateResponse,
-} from "../../../types/state-manager";
+
 import { ERC20, IStatefulERC20 } from "../../../types/token-standards/IERC20";
 import { NetworkRequestHandler } from "../../internal/network-request-handler";
 import BN from "bn.js";
@@ -12,6 +8,9 @@ import { NetworkRequestErrorHandler } from "../../../types/internal/network-requ
 import { BalanceStateManager } from "../../internal/state-managers/balance";
 import { AllowanceStateManager } from "../../internal/state-managers/allowance";
 import { StateManagerHelpers } from "../../internal/state-managers/helpers";
+import { BalanceStateResponse } from "../../../types/internal/state-managers/balance";
+import { AllowanceStateResponse } from "../../../types/internal/state-managers/allowance";
+import { TokenStateResponse } from "../../../types/internal/state-managers/token";
 
 export class StatefulERC20 implements IStatefulERC20 {
   private _balanceManager: BalanceStateManager;

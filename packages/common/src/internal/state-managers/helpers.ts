@@ -1,4 +1,4 @@
-import { TokenStateContext } from "../../../types/state-manager";
+import { TokenStateContext } from "../../../types/internal/state-managers/token";
 import { AllowanceStateManager } from "./allowance";
 import { BalanceStateManager } from "./balance";
 import BN from "bn.js";

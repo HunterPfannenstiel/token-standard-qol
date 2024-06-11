@@ -1,17 +1,9 @@
-import { Contract, ContractAbi } from "web3";
-import { ABIDelegate } from "../../../common/types";
-import { IContractConstructor } from "../../../common/types/contract-constructor";
+import { Contract } from "web3";
 
-export class Web3ContractConstructor
-  implements IContractConstructor<Contract<any>>
-{
-  constructor(
-    private abiDelegate: ABIDelegate,
-    private signerAddress: string
-  ) {}
+export class Web3ContractConstructor {
+  constructor(private signerAddress: string) {}
 
-  public async getContract(address: string, chainId: number) {
-    const abi = await this.abiDelegate(address);
+  public async getContract(address: string, chainId: number, abi: any) {
     const contract = new Contract(abi, address);
     contract.defaultAccount = this.signerAddress;
     contract.defaultChain = chainId.toString();

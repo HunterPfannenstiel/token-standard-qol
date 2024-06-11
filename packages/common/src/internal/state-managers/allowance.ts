@@ -1,4 +1,4 @@
-import { AllowanceStateContext } from "../../../types/state-manager";
+import { AllowanceStateContext } from "../../../types/internal/state-managers/allowance";
 import { IAllowance } from "../../../types/token-standards";
 import BN from "bn.js";
 

@@ -1,4 +1,4 @@
-import { BalanceStateContext } from "../../../types/state-manager";
+import { BalanceStateContext } from "../../../types/internal/state-managers/balance";
 import { IBalance } from "../../../types/token-standards";
 import BN from "bn.js";
 
