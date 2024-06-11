@@ -7,12 +7,11 @@ import {
 import { ERC20, IStatefulERC20 } from "../../../types/token-standards/IERC20";
 import { NetworkRequestHandler } from "../../internal/network-request-handler";
 import BN from "bn.js";
-import {
-  AllowanceStateManager,
-  BalanceStateManager,
-  StateManagerHelpers,
-} from "../../internal/state-managers";
+
 import { NetworkRequestErrorHandler } from "../../../types/internal/network-request-handler";
+import { BalanceStateManager } from "../../internal/state-managers/balance";
+import { AllowanceStateManager } from "../../internal/state-managers/allowance";
+import { StateManagerHelpers } from "../../internal/state-managers/helpers";
 
 export class StatefulERC20 implements IStatefulERC20 {
   private _balanceManager: BalanceStateManager;
@@ -141,15 +140,14 @@ export class StatefulERC20 implements IStatefulERC20 {
     if (conversionRequest.isError) return conversionRequest;
 
     const requiredAmountBN = conversionRequest.data;
-    const balanceAllowanceStateRequest = await this._reqestHandler.send(
-      async () =>
-        StateManagerHelpers.balanceAllowanceState(
-          this._allowanceManager,
-          this._balanceManager,
-          requiredAmountBN,
-          this._erc20.getSignerAddress(),
-          spender
-        )
+    const balanceAllowanceStateRequest = await this._reqestHandler.send(() =>
+      StateManagerHelpers.balanceAllowanceState(
+        this._allowanceManager,
+        this._balanceManager,
+        requiredAmountBN,
+        this._erc20.getSignerAddress(),
+        spender
+      )
     );
     return balanceAllowanceStateRequest;
   }
