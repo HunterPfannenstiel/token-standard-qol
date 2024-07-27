@@ -9,12 +9,14 @@ import {
 import * as tERC20ABI from "../../utils/ABI/tERC20.json";
 import { ERC20TestContractData, ITestableERC20 } from "../../utils/types";
 import { amountTests } from "../../utils/test-functions/amounts";
+import { IBigNumber } from "../../../types/big-number";
 
-export const erc20Tests = (
-  contractConstructor: ProviderContractConstructor<ITestableERC20>
+export const erc20Tests = <T extends IBigNumber<T>>(
+  contractConstructor: ProviderContractConstructor<ITestableERC20<any>>,
+  contractHelpers: ContractHelpers<T>
 ) => {
   const testERC20 = (contractData: ERC20TestContractData) => {
-    let erc20: ITestableERC20;
+    let erc20: ITestableERC20<T>;
     let signerAddress: string;
     beforeAll(async () => {
       const contractInfo = await getGanacheContract(
@@ -58,7 +60,7 @@ export const erc20Tests = (
               signerAddress,
               MOCK_ADDRESS
             );
-            const expectedAllowance = ContractHelpers.tokenToDecimalAmount(
+            const expectedAllowance = contractHelpers.tokenToDecimalAmount(
               approveAmount,
               contractData.decimals
             );
@@ -75,7 +77,7 @@ export const erc20Tests = (
           it(`should have a balance of ${balanceAmount}`, async () => {
             await erc20.mint(balanceAmount);
             const balance = await erc20.balanceOf(signerAddress);
-            const expectedBalance = ContractHelpers.tokenToDecimalAmount(
+            const expectedBalance = contractHelpers.tokenToDecimalAmount(
               balanceAmount,
               contractData.decimals
             );
@@ -97,7 +99,7 @@ export const erc20Tests = (
             const initialSupply = await erc20.totalSupply();
             await erc20.mint(increasedSupply);
             const newSupply = await erc20.totalSupply();
-            const increaseSupplyDecimal = ContractHelpers.tokenToDecimalAmount(
+            const increaseSupplyDecimal = contractHelpers.tokenToDecimalAmount(
               increasedSupply,
               contractData.decimals
             );

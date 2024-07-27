@@ -1,8 +1,8 @@
-import BN from "bn.js";
 import { AllowanceStateResponse } from "../internal/state-managers/allowance";
 import { BalanceStateResponse } from "../internal/state-managers/balance";
+import { IBigNumber } from "../big-number";
 
-export interface IAllowance {
+export interface IAllowance<T extends IBigNumber<T>> {
   /**
    * Payable: false
    * Constant: false
@@ -20,17 +20,17 @@ export interface IAllowance {
    * @param _owner Type: address, Indexed: false
    * @param _spender Type: address, Indexed: false
    */
-  allowance(_owner: string, _spender: string): Promise<BN>;
+  allowance(_owner: string, _spender: string): Promise<T>;
 }
 
-export interface IStatefulAllowance {
+export interface IStatefulAllowance<T extends IBigNumber<T>> {
   getAllowanceState(
     requiredAmount: number,
     spender: string
-  ): Promise<AllowanceStateResponse>;
+  ): Promise<AllowanceStateResponse<T>>;
 }
 
-export interface IBalance {
+export interface IBalance<T extends IBigNumber<T>> {
   /**
    * Payable: false
    * Constant: true
@@ -38,11 +38,11 @@ export interface IBalance {
    * Type: function
    * @param _owner Type: address, Indexed: false
    */
-  balanceOf(_owner: string): Promise<BN>;
+  balanceOf(_owner: string): Promise<T>;
 }
 
-export interface IStatefulBalance {
-  getBalanceState(requiredAmount: number): Promise<BalanceStateResponse>;
+export interface IStatefulBalance<T extends IBigNumber<T>> {
+  getBalanceState(requiredAmount: number): Promise<BalanceStateResponse<T>>;
 }
 
 export interface ISignedContract {

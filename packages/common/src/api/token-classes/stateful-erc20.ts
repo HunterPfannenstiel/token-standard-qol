@@ -1,8 +1,10 @@
 import { NetworkResponse } from "../../../types";
 
-import { ERC20, IStatefulERC20 } from "../../../types/token-standards/IERC20";
+import {
+  ERC20Conversions,
+  IStatefulERC20,
+} from "../../../types/token-standards/IERC20";
 import { NetworkRequestHandler } from "../../internal/network-request-handler";
-import BN from "bn.js";
 
 import { NetworkRequestErrorHandler } from "../../../types/internal/network-request-handler";
 import { BalanceStateManager } from "../../internal/state-managers/balance";
@@ -11,14 +13,20 @@ import { StateManagerHelpers } from "../../internal/state-managers/helpers";
 import { BalanceStateResponse } from "../../../types/internal/state-managers/balance";
 import { AllowanceStateResponse } from "../../../types/internal/state-managers/allowance";
 import { TokenStateResponse } from "../../../types/internal/state-managers/token";
+import { IBigNumber } from "../../../types/big-number";
 
-export class StatefulERC20 implements IStatefulERC20 {
-  private _balanceManager: BalanceStateManager;
-  private _allowanceManager: AllowanceStateManager;
+export class StatefulERC20<T extends IBigNumber<T>>
+  implements IStatefulERC20<T>
+{
+  private _balanceManager: BalanceStateManager<T>;
+  private _allowanceManager: AllowanceStateManager<T>;
   private _reqestHandler: NetworkRequestHandler;
-  protected _erc20: ERC20;
+  protected _erc20: ERC20Conversions<T>;
 
-  constructor(erc20: ERC20, errorHandler?: NetworkRequestErrorHandler) {
+  constructor(
+    erc20: ERC20Conversions<T>,
+    errorHandler?: NetworkRequestErrorHandler
+  ) {
     this._erc20 = erc20;
     this._balanceManager = new BalanceStateManager(this._erc20);
     this._allowanceManager = new AllowanceStateManager(this._erc20);
@@ -31,18 +39,18 @@ export class StatefulERC20 implements IStatefulERC20 {
     });
   }
 
-  public async cTotalSupply(): Promise<NetworkResponse<BN>> {
+  public async cTotalSupply(): Promise<NetworkResponse<T>> {
     return this._reqestHandler.send(async () => this._erc20.cTotalSupply());
   }
 
-  public async cBalanceOf(_owner: string): Promise<NetworkResponse<BN>> {
+  public async cBalanceOf(_owner: string): Promise<NetworkResponse<T>> {
     return this._reqestHandler.send(async () => this._erc20.cBalanceOf(_owner));
   }
 
   public async cAllowance(
     _owner: string,
     _spender: string
-  ): Promise<NetworkResponse<BN>> {
+  ): Promise<NetworkResponse<T>> {
     return this._reqestHandler.send(async () =>
       this._erc20.cAllowance(_owner, _spender)
     );
@@ -58,7 +66,7 @@ export class StatefulERC20 implements IStatefulERC20 {
     );
   }
 
-  totalSupply(): Promise<NetworkResponse<BN>> {
+  totalSupply(): Promise<NetworkResponse<T>> {
     return this._reqestHandler.send(() => this._erc20.totalSupply());
   }
 
@@ -76,7 +84,7 @@ export class StatefulERC20 implements IStatefulERC20 {
     return this._reqestHandler.send(() => this._erc20.decimals());
   }
 
-  balanceOf(_owner: string): Promise<NetworkResponse<BN>> {
+  balanceOf(_owner: string): Promise<NetworkResponse<T>> {
     return this._reqestHandler.send(
       this._erc20.balanceOf.bind(this._erc20, _owner)
     );
@@ -92,13 +100,15 @@ export class StatefulERC20 implements IStatefulERC20 {
     );
   }
 
-  allowance(_owner: string, _spender: string): Promise<NetworkResponse<BN>> {
+  allowance(_owner: string, _spender: string): Promise<NetworkResponse<T>> {
     return this._reqestHandler.send(
       this._erc20.allowance.bind(this._erc20, _owner, _spender)
     );
   }
 
-  async getBalanceState(requiredAmount: number): Promise<BalanceStateResponse> {
+  async getBalanceState(
+    requiredAmount: number
+  ): Promise<BalanceStateResponse<T>> {
     const conversionRequest = await this.tokenToDecimalAmount(requiredAmount);
 
     if (conversionRequest.isError) return conversionRequest;
@@ -115,7 +125,7 @@ export class StatefulERC20 implements IStatefulERC20 {
   async getAllowanceState(
     requiredAmount: number,
     spender: string
-  ): Promise<AllowanceStateResponse> {
+  ): Promise<AllowanceStateResponse<T>> {
     const conversionRequest = await this.tokenToDecimalAmount(requiredAmount);
 
     if (conversionRequest.isError) return conversionRequest;
@@ -133,7 +143,7 @@ export class StatefulERC20 implements IStatefulERC20 {
   async getTokenState(
     requiredAmount: number,
     spender: string
-  ): Promise<TokenStateResponse> {
+  ): Promise<TokenStateResponse<T>> {
     const conversionRequest = await this.tokenToDecimalAmount(requiredAmount);
 
     if (conversionRequest.isError) return conversionRequest;

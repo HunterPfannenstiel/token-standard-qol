@@ -7,7 +7,10 @@ import {
   getGanacheContract,
 } from "../../utils/constants";
 import * as tERC20ABI from "../../utils/ABI/tERC20.json";
-import { ERC20, IStatefulERC20 } from "../../../types/token-standards/IERC20";
+import {
+  ERC20Conversions,
+  IStatefulERC20,
+} from "../../../types/token-standards/IERC20";
 import { StatefulERC20 } from "../../../src/api/token-classes/stateful-erc20";
 import {
   StateTestValues,
@@ -19,13 +22,13 @@ import { NetworkResponse } from "../../../types";
 
 export const erc20StateTests = (
   contractsConstructor: ProviderContractConstructor<{
-    test: ITestableERC20;
-    erc20: ERC20;
+    test: ITestableERC20<any>;
+    erc20: ERC20Conversions<any>;
   }>
 ) => {
-  let testERC20: ITestableERC20;
-  let statefulERC20: IStatefulERC20;
-  let errorERC20: IStatefulERC20;
+  let testERC20: ITestableERC20<any>;
+  let statefulERC20: IStatefulERC20<any>;
+  let errorERC20: IStatefulERC20<any>;
   let signerAddress: string;
   beforeAll(async () => {
     const contractData = await getGanacheContract(

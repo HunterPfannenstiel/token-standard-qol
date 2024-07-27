@@ -101,8 +101,8 @@ export const tokenStateTests = (
 };
 
 export const allowanceStateTests = (
-  allowanceSetter: IAllowance,
-  allowanceState: IStatefulAllowance,
+  allowanceSetter: IAllowance<any>,
+  allowanceState: IStatefulAllowance<any>,
   stateNames: StateNames
 ) => {
   const testFn = (values: StateTestValues) => {
@@ -123,7 +123,7 @@ export const allowanceStateTests = (
 
 export const balanceStateTests = (
   balanceSetter: IMintable,
-  balanceState: IStatefulBalance,
+  balanceState: IStatefulBalance<any>,
   stateNames: StateNames
 ) => {
   const testFn = (values: StateTestValues) => {

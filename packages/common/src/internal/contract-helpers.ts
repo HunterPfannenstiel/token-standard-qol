@@ -1,53 +1,52 @@
-import BN from "bn.js";
 import { IERC20 } from "../../types/token-standards/IERC20";
+import {
+  BigNumberConstructor,
+  BigNumberish,
+  IBigNumber,
+} from "../../types/big-number";
 
-export class ContractHelpers {
+export class ContractHelpers<T extends IBigNumber<T>> {
+  constructor(private BigNumber: BigNumberConstructor<T>) {}
   //Math: The decimals field specifies how many decimal spaces the token supports (i.e. if decimals = 2, the token supports 2 decimal spaces. 100 would equal 1 token).
   //To convert a token amount to the correct units, the token amount needs to be multiplied by 10^decimals (1 * 10^2 = 100)
-  static tokenToDecimalAmount(amount: number | BN | string, decimals: number) {
-    const tokenAmount = new BN(amount);
-    const factor = new BN(10).pow(new BN(decimals));
+  tokenToDecimalAmount(amount: BigNumberish<T>, decimals: BigNumberish<T>) {
+    const amountBN = new this.BigNumber(amount);
+    const decimalBN = new this.BigNumber(decimals);
+    const baseBN = new this.BigNumber(10);
+    const factor = baseBN.pow(decimalBN);
 
-    const contractTokenAmount = tokenAmount.mul(factor);
-    return contractTokenAmount;
+    const contractTokenAmount = amountBN.mul(factor);
+    return contractTokenAmount as T;
   }
 
-  static decimalToTokenAmount(amount: number | BN | string, decimals: number) {
-    const decimalAmount = new BN(amount);
-    const factor = new BN(10).pow(new BN(-decimals));
-
-    const tokenAmount = decimalAmount.mul(factor);
-    return tokenAmount;
+  decimalToTokenAmount(amount: BigNumberish<T>, decimals: BigNumberish<T>) {
+    const decimalBN = new this.BigNumber(decimals).mul(new this.BigNumber(-1));
+    // const factor = new BN(10).pow(new BN(-decimals));
+    return this.tokenToDecimalAmount(amount, decimalBN);
   }
 
-  static async contractTokenToDecimalAmount(
-    amount: number | BN | string,
-    contract: IERC20
+  async contractTokenToDecimalAmount(
+    amount: BigNumberish<T>,
+    contract: IERC20<T>
   ) {
     const decimals = await contract.decimals();
-    const convertedAmount = ContractHelpers.tokenToDecimalAmount(
-      amount,
-      decimals
-    );
+    const convertedAmount = this.tokenToDecimalAmount(amount, decimals);
     return convertedAmount;
   }
 
-  static async contractDecimalToTokenAmount(
-    amount: number | BN | string,
-    contract: IERC20
+  async contractDecimalToTokenAmount(
+    amount: BigNumberish<T>,
+    contract: IERC20<T>
   ) {
     const decimals = await contract.decimals();
-    const convertedAmount = ContractHelpers.decimalToTokenAmount(
-      amount,
-      decimals
-    );
+    const convertedAmount = this.decimalToTokenAmount(amount, decimals);
     return convertedAmount;
   }
 }
 
-const getDecimalCount = (amount: number | BN | string) => {
-  const amountString = amount.toString();
-  const decimalIndex = amountString.indexOf(".");
-  if (decimalIndex === -1) return 0;
-  return amountString.length - decimalIndex - 1;
-};
+// const getDecimalCount = (amount: BigNumberish<T>) => {
+//   const amountString = amount.toString();
+//   const decimalIndex = amountString.indexOf(".");
+//   if (decimalIndex === -1) return 0;
+//   return amountString.length - decimalIndex - 1;
+// };

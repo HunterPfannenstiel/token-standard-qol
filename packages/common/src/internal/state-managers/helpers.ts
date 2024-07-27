@@ -1,16 +1,16 @@
+import { IBigNumber } from "../../../types/big-number";
 import { TokenStateContext } from "../../../types/internal/state-managers/token";
 import { AllowanceStateManager } from "./allowance";
 import { BalanceStateManager } from "./balance";
-import BN from "bn.js";
 
 export class StateManagerHelpers {
-  static async balanceAllowanceState(
-    allowanceManager: AllowanceStateManager,
-    balanceManager: BalanceStateManager,
-    requiredAmount: BN,
+  static async balanceAllowanceState<T extends IBigNumber<T>>(
+    allowanceManager: AllowanceStateManager<T>,
+    balanceManager: BalanceStateManager<T>,
+    requiredAmount: T,
     owner: string,
     spender: string
-  ): Promise<TokenStateContext> {
+  ): Promise<TokenStateContext<T>> {
     const balanceState = await balanceManager.getBalanceState(
       requiredAmount,
       owner

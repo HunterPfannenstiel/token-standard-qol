@@ -1,14 +1,19 @@
 import { MappedStateData, StatefulResponse } from ".";
 import { AllowanceStateMap } from "./allowance";
 import { BalanceStateMap } from "./balance";
+import { IBigNumber } from "../../big-number";
 
-type TokenStateMap = {
+type TokenStateMap<T extends IBigNumber<T>> = {
   sufficient: undefined;
-} & Pick<BalanceStateMap, "insufficient-balance"> &
-  Pick<AllowanceStateMap, "insufficient-allowance">;
+} & Pick<BalanceStateMap<T>, "insufficient-balance"> &
+  Pick<AllowanceStateMap<T>, "insufficient-allowance">;
 
-export type TokenState = keyof TokenStateMap;
+export type TokenState<T extends IBigNumber<T>> = keyof TokenStateMap<T>;
 
-export type TokenStateContext = MappedStateData<TokenStateMap>;
+export type TokenStateContext<T extends IBigNumber<T>> = MappedStateData<
+  TokenStateMap<T>
+>;
 
-export type TokenStateResponse = StatefulResponse<TokenStateMap>;
+export type TokenStateResponse<T extends IBigNumber<T>> = StatefulResponse<
+  TokenStateMap<T>
+>;

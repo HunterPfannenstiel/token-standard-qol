@@ -1,3 +1,4 @@
+import { IBigNumber } from "../../types/big-number";
 import { IERC20 } from "../../types/token-standards/IERC20";
 
 export interface IMintable {
@@ -18,7 +19,9 @@ export interface IMintable {
   burnAll(): Promise<void>;
 }
 
-export interface ITestableERC20 extends IMintable, IERC20 {}
+export interface ITestableERC20<T extends IBigNumber<T>>
+  extends IMintable,
+    IERC20<T> {}
 
 export type ERC20Metadata = {
   name: string;

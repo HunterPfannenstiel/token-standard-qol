@@ -1,14 +1,13 @@
 import BN from "bn.js";
 
-import { ERC20 } from "../../../common/types/token-standards/IERC20";
+import { ERC20Conversions } from "../../../common/types/token-standards/IERC20";
 import { IERC20ContractContext } from "../../types/token-standards/web3IERC20";
 // import { Web3Error } from "web3";
 
-export class Web3ERC20 extends ERC20 {
-  private _cachedDecimals?: number;
+export class Web3ERC20 extends ERC20Conversions<BN> {
   protected _contract: IERC20ContractContext;
   constructor(contract: IERC20ContractContext, signerAddress: string) {
-    super(signerAddress);
+    super(signerAddress, BN);
     this._contract = contract;
   }
 
@@ -35,14 +34,9 @@ export class Web3ERC20 extends ERC20 {
       .send({ from: this.getSignerAddress() });
   }
 
-  async decimals() {
-    if (this._cachedDecimals !== undefined) {
-      return this._cachedDecimals;
-    }
-
+  protected async fetchDecimals(): Promise<number> {
     const decimalString = await this._contract.methods.decimals().call();
     const decimals = parseInt(decimalString);
-    this._cachedDecimals = decimals;
     return decimals;
   }
 
