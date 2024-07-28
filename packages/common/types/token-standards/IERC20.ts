@@ -200,6 +200,7 @@ export abstract class ERC20Conversions<
     super(signerAddress);
     this._contractHelpers = new ContractHelpers(bnConstructor);
   }
+
   public async tokenToDecimalAmount(amount: BigNumberish<T>) {
     return this._contractHelpers.contractTokenToDecimalAmount(amount, this);
   }

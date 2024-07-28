@@ -14,7 +14,7 @@ export class Web3TestableERC20 extends Web3ERC20 implements ITestableERC20<BN> {
 
   async mint(amount: number): Promise<void> {
     const decimalAmount =
-      await this._contractHelpers.contractTokenToDecimalAmount(amount, this);
+      await this._contractHelpers.contractDecimalToTokenAmount(amount, this);
     await this._testContract.methods
       .mint(decimalAmount.toString())
       .send({ from: this.getSignerAddress() });
