@@ -13,9 +13,9 @@ import { StateManagerHelpers } from "../../internal/state-managers/helpers";
 import { BalanceStateResponse } from "../../../types/internal/state-managers/balance";
 import { AllowanceStateResponse } from "../../../types/internal/state-managers/allowance";
 import { TokenStateResponse } from "../../../types/internal/state-managers/token";
-import { IBigNumber } from "../../../types/big-number";
+import { BigNumberish, IBigNumber } from "../../../types/big-number";
 
-export class StatefulERC20<T extends IBigNumber<T>>
+export class StatefulERC20<T extends IBigNumber<T>, E = any>
   implements IStatefulERC20<T>
 {
   private _balanceManager: BalanceStateManager<T>;
@@ -33,24 +33,24 @@ export class StatefulERC20<T extends IBigNumber<T>>
     this._reqestHandler = new NetworkRequestHandler(errorHandler);
   }
 
-  protected async tokenToDecimalAmount(requiredAmount: number) {
+  protected async decimalToTokenAmount(requiredAmount: BigNumberish<T>) {
     return this._reqestHandler.send(async () => {
-      return this._erc20.tokenToDecimalAmount(requiredAmount);
+      return this._erc20.decimalToTokenAmount(requiredAmount);
     });
   }
 
-  public async cTotalSupply(): Promise<NetworkResponse<T>> {
+  public async cTotalSupply(): Promise<NetworkResponse<T, E>> {
     return this._reqestHandler.send(async () => this._erc20.cTotalSupply());
   }
 
-  public async cBalanceOf(_owner: string): Promise<NetworkResponse<T>> {
+  public async cBalanceOf(_owner: string): Promise<NetworkResponse<T, E>> {
     return this._reqestHandler.send(async () => this._erc20.cBalanceOf(_owner));
   }
 
   public async cAllowance(
     _owner: string,
     _spender: string
-  ): Promise<NetworkResponse<T>> {
+  ): Promise<NetworkResponse<T, E>> {
     return this._reqestHandler.send(async () =>
       this._erc20.cAllowance(_owner, _spender)
     );
@@ -60,21 +60,24 @@ export class StatefulERC20<T extends IBigNumber<T>>
     return this._reqestHandler.send(() => this._erc20.name());
   }
 
-  approve(_spender: string, _value: number): Promise<NetworkResponse<void>> {
+  approve(
+    _spender: string,
+    _value: BigNumberish<T>
+  ): Promise<NetworkResponse<void, E>> {
     return this._reqestHandler.send(
       this._erc20.approve.bind(this._erc20, _spender, _value)
     );
   }
 
-  totalSupply(): Promise<NetworkResponse<T>> {
+  totalSupply(): Promise<NetworkResponse<T, E>> {
     return this._reqestHandler.send(() => this._erc20.totalSupply());
   }
 
   transferFrom(
     _from: string,
     _to: string,
-    _value: number
-  ): Promise<NetworkResponse<void>> {
+    _value: BigNumberish<T>
+  ): Promise<NetworkResponse<void, E>> {
     return this._reqestHandler.send(
       this._erc20.transferFrom.bind(this._erc20, _from, _to, _value)
     );
@@ -84,7 +87,7 @@ export class StatefulERC20<T extends IBigNumber<T>>
     return this._reqestHandler.send(() => this._erc20.decimals());
   }
 
-  balanceOf(_owner: string): Promise<NetworkResponse<T>> {
+  balanceOf(_owner: string): Promise<NetworkResponse<T, E>> {
     return this._reqestHandler.send(
       this._erc20.balanceOf.bind(this._erc20, _owner)
     );
@@ -94,22 +97,25 @@ export class StatefulERC20<T extends IBigNumber<T>>
     return this._reqestHandler.send(() => this._erc20.symbol());
   }
 
-  transfer(_to: string, _value: number): Promise<NetworkResponse<void>> {
+  transfer(
+    _to: string,
+    _value: BigNumberish<T>
+  ): Promise<NetworkResponse<void, E>> {
     return this._reqestHandler.send(
       this._erc20.transfer.bind(this._erc20, _to, _value)
     );
   }
 
-  allowance(_owner: string, _spender: string): Promise<NetworkResponse<T>> {
+  allowance(_owner: string, _spender: string): Promise<NetworkResponse<T, E>> {
     return this._reqestHandler.send(
       this._erc20.allowance.bind(this._erc20, _owner, _spender)
     );
   }
 
   async getBalanceState(
-    requiredAmount: number
+    requiredAmount: BigNumberish<T>
   ): Promise<BalanceStateResponse<T>> {
-    const conversionRequest = await this.tokenToDecimalAmount(requiredAmount);
+    const conversionRequest = await this.decimalToTokenAmount(requiredAmount);
 
     if (conversionRequest.isError) return conversionRequest;
 
@@ -123,10 +129,10 @@ export class StatefulERC20<T extends IBigNumber<T>>
   }
 
   async getAllowanceState(
-    requiredAmount: number,
+    requiredAmount: BigNumberish<T>,
     spender: string
   ): Promise<AllowanceStateResponse<T>> {
-    const conversionRequest = await this.tokenToDecimalAmount(requiredAmount);
+    const conversionRequest = await this.decimalToTokenAmount(requiredAmount);
 
     if (conversionRequest.isError) return conversionRequest;
 
@@ -141,10 +147,10 @@ export class StatefulERC20<T extends IBigNumber<T>>
   }
 
   async getTokenState(
-    requiredAmount: number,
+    requiredAmount: BigNumberish<T>,
     spender: string
   ): Promise<TokenStateResponse<T>> {
-    const conversionRequest = await this.tokenToDecimalAmount(requiredAmount);
+    const conversionRequest = await this.decimalToTokenAmount(requiredAmount);
 
     if (conversionRequest.isError) return conversionRequest;
 

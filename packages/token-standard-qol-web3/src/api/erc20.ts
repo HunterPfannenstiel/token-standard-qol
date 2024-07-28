@@ -2,6 +2,7 @@ import BN from "bn.js";
 
 import { ERC20Conversions } from "../../../common/types/token-standards/IERC20";
 import { IERC20ContractContext } from "../../types/token-standards/web3IERC20";
+import { BigNumberish } from "../../../common/types/big-number";
 // import { Web3Error } from "web3";
 
 export class Web3ERC20 extends ERC20Conversions<BN> {
@@ -15,8 +16,8 @@ export class Web3ERC20 extends ERC20Conversions<BN> {
     return this._contract.methods.name().call();
   }
 
-  async approve(_spender: string, _value: number) {
-    const convertedAmount = await this.tokenToDecimalAmount(_value);
+  async approve(_spender: string, _value: BigNumberish<BN>) {
+    const convertedAmount = await this.decimalToTokenAmount(_value);
     await this._contract.methods
       .approve(_spender, convertedAmount.toString())
       .send({ from: this.getSignerAddress() });
@@ -27,8 +28,8 @@ export class Web3ERC20 extends ERC20Conversions<BN> {
     return new BN(supplyString);
   }
 
-  async transferFrom(_from: string, _to: string, _value: number) {
-    const convertedAmount = await this.tokenToDecimalAmount(_value);
+  async transferFrom(_from: string, _to: string, _value: BigNumberish<BN>) {
+    const convertedAmount = await this.decimalToTokenAmount(_value);
     await this._contract.methods
       .transferFrom(_from, _to, convertedAmount.toString())
       .send({ from: this.getSignerAddress() });
@@ -49,8 +50,8 @@ export class Web3ERC20 extends ERC20Conversions<BN> {
     return this._contract.methods.symbol().call();
   }
 
-  async transfer(_to: string, _value: number) {
-    const convertedAmount = await this.tokenToDecimalAmount(_value);
+  async transfer(_to: string, _value: BigNumberish<BN>) {
+    const convertedAmount = await this.decimalToTokenAmount(_value);
     await this._contract.methods
       .transfer(_to, convertedAmount.toString())
       .send({ from: this.getSignerAddress() });

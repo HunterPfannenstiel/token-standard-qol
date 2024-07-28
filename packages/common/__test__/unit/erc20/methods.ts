@@ -60,7 +60,7 @@ export const erc20Tests = <T extends IBigNumber<T>>(
               signerAddress,
               MOCK_ADDRESS
             );
-            const expectedAllowance = contractHelpers.tokenToDecimalAmount(
+            const expectedAllowance = contractHelpers.decimalToTokenAmount(
               approveAmount,
               contractData.decimals
             );
@@ -77,7 +77,7 @@ export const erc20Tests = <T extends IBigNumber<T>>(
           it(`should have a balance of ${balanceAmount}`, async () => {
             await erc20.mint(balanceAmount);
             const balance = await erc20.balanceOf(signerAddress);
-            const expectedBalance = contractHelpers.tokenToDecimalAmount(
+            const expectedBalance = contractHelpers.decimalToTokenAmount(
               balanceAmount,
               contractData.decimals
             );
@@ -99,7 +99,7 @@ export const erc20Tests = <T extends IBigNumber<T>>(
             const initialSupply = await erc20.totalSupply();
             await erc20.mint(increasedSupply);
             const newSupply = await erc20.totalSupply();
-            const increaseSupplyDecimal = contractHelpers.tokenToDecimalAmount(
+            const increaseSupplyDecimal = contractHelpers.decimalToTokenAmount(
               increasedSupply,
               contractData.decimals
             );

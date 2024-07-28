@@ -36,7 +36,11 @@ export interface IERC20<T extends IBigNumber<T>>
    * @param _to Type: address, Indexed: false
    * @param _value Type: uint256, Indexed: false
    */
-  transferFrom(_from: string, _to: string, _value: number): Promise<void>;
+  transferFrom(
+    _from: string,
+    _to: string,
+    _value: BigNumberish<T>
+  ): Promise<void>;
   /**
    * Payable: false
    * Constant: true
@@ -59,7 +63,7 @@ export interface IERC20<T extends IBigNumber<T>>
    * @param _to Type: address, Indexed: false
    * @param _value Type: uint256, Indexed: false
    */
-  transfer(_to: string, _value: number): Promise<void>;
+  transfer(_to: string, _value: BigNumberish<T>): Promise<void>;
 }
 
 export interface IStatefulERC20<T extends IBigNumber<T>>
@@ -80,7 +84,10 @@ export interface IStatefulERC20<T extends IBigNumber<T>>
    * @param _spender Type: address, Indexed: false
    * @param _value Type: uint256, Indexed: false
    */
-  approve(_spender: string, _value: number): Promise<NetworkResponse<void>>;
+  approve(
+    _spender: string,
+    _value: BigNumberish<T>
+  ): Promise<NetworkResponse<void>>;
   /**
    * Payable: false
    * Constant: true
@@ -100,7 +107,7 @@ export interface IStatefulERC20<T extends IBigNumber<T>>
   transferFrom(
     _from: string,
     _to: string,
-    _value: number
+    _value: BigNumberish<T>
   ): Promise<NetworkResponse<void>>;
   /**
    * Payable: false
@@ -132,7 +139,10 @@ export interface IStatefulERC20<T extends IBigNumber<T>>
    * @param _to Type: address, Indexed: false
    * @param _value Type: uint256, Indexed: false
    */
-  transfer(_to: string, _value: number): Promise<NetworkResponse<void>>;
+  transfer(
+    _to: string,
+    _value: BigNumberish<T>
+  ): Promise<NetworkResponse<void>>;
   /**
    * Payable: false
    * Constant: true
@@ -144,7 +154,7 @@ export interface IStatefulERC20<T extends IBigNumber<T>>
   allowance(_owner: string, _spender: string): Promise<NetworkResponse<T>>;
 
   getTokenState(
-    requiredAmount: number,
+    requiredAmount: BigNumberish<T>,
     spender: string
   ): Promise<TokenStateResponse<T>>;
 }
@@ -168,17 +178,17 @@ export abstract class ERC20<T extends IBigNumber<T>>
   }
 
   abstract name(): Promise<string>;
-  abstract approve(_spender: string, _value: number): Promise<void>;
+  abstract approve(_spender: string, _value: BigNumberish<T>): Promise<void>;
   abstract totalSupply(): Promise<T>;
   abstract transferFrom(
     _from: string,
     _to: string,
-    _value: number
+    _value: BigNumberish<T>
   ): Promise<void>;
   protected abstract fetchDecimals(): Promise<number>;
   abstract balanceOf(_owner: string): Promise<T>;
   abstract symbol(): Promise<string>;
-  abstract transfer(_to: string, _value: number): Promise<void>;
+  abstract transfer(_to: string, _value: BigNumberish<T>): Promise<void>;
   abstract allowance(_owner: string, _spender: string): Promise<T>;
 }
 

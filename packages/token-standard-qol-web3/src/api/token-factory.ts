@@ -1,9 +1,11 @@
+import { Web3Error } from "web3";
 import { TokenFactory } from "../../../common/src/api/token-factory";
 import { IERC20ContractContext } from "../../types/token-standards/web3IERC20";
 import { Web3Helpers } from "../internal/helpers";
 import { Web3ERC20 } from "./erc20";
+import BN from "bn.js";
 
-export class Web3TokenFactory extends TokenFactory {
+export class Web3TokenFactory extends TokenFactory<BN, Web3Error> {
   async getERC20(tokenAddress: string, chainId: number): Promise<Web3ERC20> {
     const { contract, signer } = await Web3Helpers.createProviderContract(
       tokenAddress,

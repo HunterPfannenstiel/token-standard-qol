@@ -1,6 +1,6 @@
 import { AllowanceStateResponse } from "../internal/state-managers/allowance";
 import { BalanceStateResponse } from "../internal/state-managers/balance";
-import { IBigNumber } from "../big-number";
+import { BigNumberish, IBigNumber } from "../big-number";
 
 export interface IAllowance<T extends IBigNumber<T>> {
   /**
@@ -11,7 +11,7 @@ export interface IAllowance<T extends IBigNumber<T>> {
    * @param _spender Type: address, Indexed: false
    * @param _value Type: uint256, Indexed: false
    */
-  approve(_spender: string, _value: number): Promise<void>;
+  approve(_spender: string, _value: BigNumberish<T>): Promise<void>;
   /**
    * Payable: false
    * Constant: true

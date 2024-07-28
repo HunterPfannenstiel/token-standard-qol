@@ -1,7 +1,6 @@
 import { IBigNumber } from "../../../types/big-number";
 import { BalanceStateContext } from "../../../types/internal/state-managers/balance";
 import { IBalance } from "../../../types/token-standards";
-import BN from "bn.js";
 
 export class BalanceStateManager<T extends IBigNumber<T>> {
   private _contract: IBalance<T>;
