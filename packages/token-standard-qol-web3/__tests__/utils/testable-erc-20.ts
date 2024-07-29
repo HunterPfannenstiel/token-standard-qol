@@ -1,4 +1,4 @@
-import { ITestableERC20 } from "../../../common/__test__/utils/types";
+import { ITestableERC20 } from "../../../common/tests/utils/types";
 import { Web3ERC20 } from "../../src/api/erc20";
 import { IERC20ContractContext } from "../../types/token-standards/web3IERC20";
 import { ContractContext as TERC20Contract } from "./types/web3tERC20";
