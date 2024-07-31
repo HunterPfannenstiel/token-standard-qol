@@ -3,14 +3,12 @@ import {
   BigNumberish,
 } from "../../../../types/big-number";
 import { ContractHelpers } from "../../contract-helpers";
-import { getDecimalToTokenTests } from "./utils";
+import { getDecimalToTokenTests, TokenTest } from "./utils";
 
 const runDecimalToTokenAmountTest = (
   contractHelpers: ContractHelpers<any>,
   testName: string,
-  number: BigNumberish<any>,
-  decimals: number,
-  expected: BigNumberish<any>,
+  { number, decimals, expected }: TokenTest<any>,
   showTestParams = false
 ) => {
   const testParamsDisplay = showTestParams
@@ -22,26 +20,67 @@ const runDecimalToTokenAmountTest = (
   });
 };
 
+const runTokenToDecimalAmountTest = (
+  contractHelpers: ContractHelpers<any>,
+  testName: string,
+  { number, decimals, expected }: TokenTest<any>,
+  showTestParams = false
+) => {
+  const testParamsDisplay = showTestParams
+    ? `[Number: ${expected}; Decimals: ${decimals}; Expected: ${number}]`
+    : "";
+  it(`should ${testName} ${testParamsDisplay}`, () => {
+    const tokenAmount = contractHelpers.tokenToDecimalAmount(
+      expected,
+      decimals
+    );
+    expect(tokenAmount.toString()).toBe(number.toString());
+  });
+};
+
 export const contractHelpersTests = (BigNumber: BigNumberConstructor<any>) => {
   const contractHelpers = new ContractHelpers(BigNumber);
+  const conversionTests = getDecimalToTokenTests(BigNumber);
   describe("decimal to token amount", () => {
-    const tests = getDecimalToTokenTests(BigNumber);
-    tests.nonFractional.forEach(({ number, decimals, expected }) => {
+    conversionTests.nonFractional.forEach((test) => {
       runDecimalToTokenAmountTest(
         contractHelpers,
         "convert numbers without fractional portion",
-        number,
-        decimals,
-        expected
+        test
       );
     });
-    tests.fractional.forEach(({ number, decimals, expected }) => {
+    conversionTests.fractional.forEach((test) => {
       runDecimalToTokenAmountTest(
         contractHelpers,
         "convert numbers with fractional portions",
-        number,
-        decimals,
-        expected
+        test
+      );
+    });
+    conversionTests.exactFractional.forEach((test) => {
+      runDecimalToTokenAmountTest(
+        contractHelpers,
+        "convert numbers with fractional portions",
+        test
+      );
+    });
+    conversionTests.edgeCases.forEach((test) =>
+      runDecimalToTokenAmountTest(contractHelpers, "edge case", test)
+    );
+  });
+
+  describe("token to decimal amount", () => {
+    conversionTests.nonFractional.forEach((test) => {
+      runTokenToDecimalAmountTest(
+        contractHelpers,
+        "convert numbers without fractional portion",
+        test
+      );
+    });
+    conversionTests.exactFractional.forEach((test) => {
+      runTokenToDecimalAmountTest(
+        contractHelpers,
+        "convert numbers with fractional portions",
+        test
       );
     });
   });
